@@ -1,12 +1,8 @@
-import React, { Component } from 'react';
-
-const handleBookShelfChange = ( event ) => {
-  console.log(event);
-}
+import React from 'react';
 
 const Book = props => {
   const { authors, title, imageLinks, shelf } = props.book;
-  const { onUpdateBookShelf } = props;
+  const { book, onUpdateBookShelf } = props;
   const bookCoverStyle = {
     width: '128px',
     height: '188px',
@@ -20,7 +16,7 @@ const Book = props => {
         <div className="book-shelf-changer">
           <select
             value={shelf}
-            onChange={e => onUpdateBookShelf(props.book, e.target.value)}>
+            onChange={e => onUpdateBookShelf(book, shelf, e.target.value)}>
             <option value="none" disabled>Move to...</option>
             <option value="currentlyReading">Currently Reading</option>
             <option value="wantToRead">Want to Read</option>

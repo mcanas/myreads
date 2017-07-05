@@ -1,43 +1,51 @@
 import React, { Component } from 'react';
+import { Route } from 'react-router-dom';
 import * as BooksAPI from './BooksAPI';
-import BookShelves from './BookShelves';
+import ListBooks from './ListBooks';
+import SearchBooks from './SearchBooks';
 import './App.css';
 
 class App extends Component {
   state = {
-    books: []
+    shelves: {}
   }
 
   componentDidMount() {
     BooksAPI.getAll().then(books => {
-      this.setState({books});
+      let shelves = books
+        .reduce((accum, book) => {
+          if(!accum[book.shelf]) {
+            accum[book.shelf] = [];
+          }
+
+          accum[book.shelf].push(book);
+          return accum;
+        }, {});
+
+      this.setState({ shelves });
     })
   }
 
-  onUpdateBookShelf = (bookToUpdate, shelf) => {
-    let books = this.state.books;
-    books.forEach(book => {
-      if(book.id === bookToUpdate.id) {
-        book.shelf = shelf;
-      }
-    });
+  onUpdateBookShelf = (bookToUpdate, oldShelf, newShelf) => {
+    let shelves = this.state.shelves;
+    let index = shelves[oldShelf].findIndex(b => b.id === bookToUpdate);
+    let book = shelves[oldShelf].splice(index, 1)[0];
+    book.shelf = newShelf;
+    shelves[newShelf].push(book);
 
-    this.setState({ books });
-
-    BooksAPI.update(bookToUpdate, shelf);
+    this.setState({ shelves });
+    BooksAPI.update(bookToUpdate, newShelf);
   }
 
   render() {
     return (
       <div className="App">
-        <div className="list-books-title">
-          <h1>MyReads</h1>
-        </div>
-        <div className="list-books-content">
-          <BookShelves
-            books={this.state.books}
-            onUpdateBookShelf={this.onUpdateBookShelf} />
-        </div>
+        <Route exact path="/" render={() => (
+          <ListBooks
+            onUpdateBookShelf={this.onUpdateBookShelf}
+            shelves={this.state.shelves} />
+        )} />
+        <Route path="/search" component={SearchBooks} />
       </div>
     );
   }
