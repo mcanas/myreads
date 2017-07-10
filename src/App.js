@@ -28,10 +28,16 @@ class App extends Component {
 
   onUpdateBookShelf = (bookToUpdate, oldShelf, newShelf) => {
     let shelves = this.state.shelves;
-    let index = shelves[oldShelf].findIndex(b => b.id === bookToUpdate);
-    let book = shelves[oldShelf].splice(index, 1)[0];
-    book.shelf = newShelf;
-    shelves[newShelf].push(book);
+
+    if(oldShelf !== 'none') {
+      let index = shelves[oldShelf].findIndex(b => b.id === bookToUpdate);
+      let book = shelves[oldShelf].splice(index, 1)[0];
+      book.shelf = newShelf;
+
+      if(newShelf !== 'none') {
+        shelves[newShelf].push(book);        
+      }
+    }
 
     this.setState({ shelves });
     BooksAPI.update(bookToUpdate, newShelf);
@@ -45,7 +51,11 @@ class App extends Component {
             onUpdateBookShelf={this.onUpdateBookShelf}
             shelves={this.state.shelves} />
         )} />
-        <Route path="/search" component={SearchBooks} />
+        <Route path="/search" render={() => (
+          <SearchBooks
+            onUpdateBookShelf={this.onUpdateBookShelf}
+          />
+        )}/>
       </div>
     );
   }

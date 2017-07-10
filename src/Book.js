@@ -1,12 +1,21 @@
 import React from 'react';
 
 const Book = props => {
+  if(!props.book) return null;
   const { authors, title, imageLinks, shelf } = props.book;
   const { book, onUpdateBookShelf } = props;
+
+  let image = imageLinks ?
+    imageLinks.thumbnail :
+    'https://books.google.com/googlebooks/images/no_cover_thumb.gif';
+
   const bookCoverStyle = {
     width: '128px',
     height: '188px',
-    backgroundImage: `url("${imageLinks.smallThumbnail}")`
+    backgroundImage: `url("${image}")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
   }
 
   return (
