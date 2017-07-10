@@ -7,26 +7,22 @@ import './App.css';
 
 class App extends Component {
   state = {
-    books: [],
+    books: new Map(),
     searchResults: []
   }
 
   componentDidMount() {
-    BooksAPI.getAll().then(books => {
+    BooksAPI.getAll().then(results => {
+      let books = new Map();
+      results.forEach(book => books.set(book.id, book));
       this.setState({ books });
     })
   }
 
-  onUpdateBookShelf = (bookToUpdate, oldShelf, newShelf) => {
-    let books = this.state.books, idx;
+  onUpdateBookShelf = (bookToUpdate, newShelf) => {
+    let books = this.state.books;
     bookToUpdate.shelf = newShelf;
-    idx = books.findIndex(book => book.id === bookToUpdate.id);
-
-    if(idx >= 0) {
-      books[idx] = bookToUpdate;
-    } else {
-      books.push(bookToUpdate);
-    }
+    books.set(bookToUpdate.id, bookToUpdate);
 
     this.setState({ books });
     BooksAPI.update(bookToUpdate, newShelf);
@@ -34,8 +30,13 @@ class App extends Component {
 
   onBookSearch = query => {
     if(query.length) {
-      BooksAPI.search(query, 20).then(searchResults => {
-        if(searchResults.length) {
+      BooksAPI.search(query, 20).then(results => {
+        if(results.length) {
+          let books = this.state.books;
+          let searchResults = results.map(result => {
+            return books.has(result.id) ? books.get(result.id) : result;
+          });
+
           this.setState({ searchResults });
         }
       });
@@ -49,7 +50,7 @@ class App extends Component {
           <ListBooks
             onUpdateBookShelf={this.onUpdateBookShelf}
             shelves={
-              this.state.books.reduce((accum, book) => {
+              Array.from(this.state.books.values()).reduce((accum, book) => {
                 if(!accum[book.shelf]) {
                   accum[book.shelf] = [];
                 }
