@@ -1,46 +1,31 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import * as BooksAPI from './BooksAPI';
 import BookShelf from './BookShelf';
 
-class SearchBooks extends Component {
-  state = {
-    books: []
-  }
+const SearchBooks = props => {
+  const { books, onUpdateBookShelf, onBookSearch } = props;
 
-  onBookSearch = query => {
-    if(query.length) {
-      BooksAPI.search(query, 20).then(books => {
-        if(books.length) {
-          this.setState({ books });
-        }
-      });
-    }
-  }
-
-  render() {
-    return (
-      <div className="search-books">
-        <div className="search-books-bar">
-          <Link to="/" className="close-search">Close</Link>
-          <div className="search-books-input-wrapper">
-            <input
-              type="text"
-              placeholder="Search by title or author"
-              onChange={e => this.onBookSearch(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="search-books-results">
-          <BookShelf
-            title="Results"
-            books={this.state.books}
-            onUpdateBookShelf={this.props.onUpdateBookShelf}
+  return (
+    <div className="search-books">
+      <div className="search-books-bar">
+        <Link to="/" className="close-search">Close</Link>
+        <div className="search-books-input-wrapper">
+          <input
+            type="text"
+            placeholder="Search by title or author"
+            onChange={e => onBookSearch(e.target.value)}
           />
         </div>
       </div>
-    );
-  }
+      <div className="search-books-results">
+        <BookShelf
+          title="Results"
+          books={books}
+          onUpdateBookShelf={onUpdateBookShelf}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default SearchBooks;
